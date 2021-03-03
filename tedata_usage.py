@@ -11,6 +11,10 @@ DOMAIN = "https://my.te.eg"
 SERVICE_NUMBER = sys.argv[1] if len(sys.argv) >= 2 else os.getenv("TEDATA_SERVICE_NUMBER")
 SERVICE_PASSWORD = sys.argv[2] if len(sys.argv) >= 3 else os.getenv("TEDATA_SERVICE_PASSWORD")
 
+if not SERVICE_NUMBER or not SERVICE_PASSWORD:
+    print("tedata_usage: service number and password are required")
+    sys.exit(1)
+
 with webdriver.Firefox() as driver:
     wait = WebDriverWait(driver, 2)
     driver.get(f"{DOMAIN}/#/home/signin")
