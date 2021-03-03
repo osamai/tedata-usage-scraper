@@ -15,6 +15,9 @@ if not SERVICE_NUMBER or not SERVICE_PASSWORD:
     print("tedata_usage: service number and password are required")
     sys.exit(1)
 
+
+os.environ["MOZ_HEADLESS"] = "1"
+
 with webdriver.Firefox() as driver:
     driver.get(f"{DOMAIN}/#/home/signin")
 
