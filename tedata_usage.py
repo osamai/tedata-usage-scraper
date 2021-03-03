@@ -16,11 +16,26 @@ if not SERVICE_NUMBER or not SERVICE_PASSWORD:
     sys.exit(1)
 
 with webdriver.Firefox() as driver:
-    wait = WebDriverWait(driver, 2)
     driver.get(f"{DOMAIN}/#/home/signin")
+
+    wait = WebDriverWait(driver, 10)
+
+    # switch language to english
+    wait.until(presence_of_element_located((By.CSS_SELECTOR, "ecare-langswitcher>button"))).click()
+
+    # login
     driver.find_element_by_id("MobileNumberID").send_keys(SERVICE_NUMBER)
     driver.find_element_by_id("PasswordID").send_keys(SERVICE_PASSWORD+Keys.RETURN)
-    #driver.find_element_by_id("singInBtn").click()
-    result = wait.until(presence_of_element_located((By.CSS_SELECTOR, ".adsl_usage_prepaid circle-progress>svg>text")))
-    usage = result.text.strip().split(" ")[0]
-    print(f"{usage} GB")
+
+    # getting info
+    wrapper = wait.until(presence_of_element_located((By.CSS_SELECTOR, ".adsl_usage_prepaid")))
+    sub_type = wrapper.find_element_by_class_name("outterTitle").text.strip()
+    remaining = wrapper.find_element_by_css_selector("circle-progress>svg>text").text.strip().split(" ")[0]
+    info_sp = wrapper.find_element_by_tag_name("p").text.strip().split(" ")
+    usage = info_sp[0]
+    total = info_sp[-2]
+
+    print(f"Type:      {sub_type}")
+    print(f"Total:     {total} GB")
+    print(f"Used:      {usage} GB")
+    print(f"Remaining: {remaining} GB")
