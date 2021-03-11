@@ -16,9 +16,10 @@ if not SERVICE_NUMBER or not SERVICE_PASSWORD:
     sys.exit(1)
 
 
-os.environ["MOZ_HEADLESS"] = "1"
+opts = webdriver.FirefoxOptions()
+opts.headless = True
 
-with webdriver.Firefox() as driver:
+with webdriver.Firefox(options=opts, service_log_path="/dev/null") as driver:
     driver.get(f"{DOMAIN}/#/home/signin")
 
     wait = WebDriverWait(driver, 10)
@@ -28,17 +29,15 @@ with webdriver.Firefox() as driver:
 
     # login
     driver.find_element_by_id("MobileNumberID").send_keys(SERVICE_NUMBER)
-    driver.find_element_by_id("PasswordID").send_keys(SERVICE_PASSWORD+Keys.RETURN)
+    driver.find_element_by_id("PasswordID").send_keys(SERVICE_PASSWORD + Keys.RETURN)
 
     # getting info
     wrapper = wait.until(presence_of_element_located((By.CSS_SELECTOR, ".adsl_usage_prepaid")))
-    sub_type = wrapper.find_element_by_class_name("outterTitle").text.strip()
+    subtype = wrapper.find_element_by_class_name("outterTitle").text.strip()
     remaining = wrapper.find_element_by_css_selector("circle-progress>svg>text").text.strip().split(" ")[0]
-    info_sp = wrapper.find_element_by_tag_name("p").text.strip().split(" ")
-    usage = info_sp[0]
-    total = info_sp[-2]
+    info = wrapper.find_element_by_tag_name("p").text.strip().split(" ")
 
-    print(f"Type:      {sub_type}")
-    print(f"Total:     {total} GB")
-    print(f"Used:      {usage} GB")
+    print(f"Type:      {subtype}")
+    print(f"Total:     {info[-2]} GB")
+    print(f"Used:      {info[0]} GB")
     print(f"Remaining: {remaining} GB")
